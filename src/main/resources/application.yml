@@ -1,3 +1,7 @@
+# server
 server:
   address: localhost
   port: 9003
+
+# init class
+#context.initializer.classes: com.cc.anno.demo.config.GmpApplicationContextInitializer
