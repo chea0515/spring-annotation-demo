@@ -5,3 +5,5 @@ server:
 
 # init class
 #context.initializer.classes: com.cc.anno.demo.config.GmpApplicationContextInitializer
+
+# mybatis
