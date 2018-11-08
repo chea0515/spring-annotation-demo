@@ -24,7 +24,7 @@ public class IndexController {
         return service.indexPage();
     }
 
-    @Token
+    @Token("now")
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     public IndexResponse index(@RequestBody IndexRequest request) {
         System.err.println("name: " + request.getName()

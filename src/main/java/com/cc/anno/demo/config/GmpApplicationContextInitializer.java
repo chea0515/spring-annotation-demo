@@ -1,7 +1,6 @@
 package com.cc.anno.demo.config;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -17,10 +16,13 @@ import org.w3c.dom.Element;
 
 /**
  * @see org.springframework.web.WebApplicationInitializer
+ * @see org.springframework.web.bind.annotation.RequestMapping
  * @see org.springframework.web.context.ServletContextAware
+ * @see org.springframework.web.context.ConfigurableWebApplicationContext
  * @see org.springframework.context.ApplicationContextAware
  * @see org.springframework.context.annotation.ImportBeanDefinitionRegistrar
  * @see org.springframework.context.annotation.ClassPathBeanDefinitionScanner
+ * @see org.springframework.context.annotation.ConfigurationClassPostProcessor
  * @see org.springframework.beans.factory.BeanFactoryAware
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.beans.factory.InitializingBean
@@ -28,8 +30,6 @@ import org.w3c.dom.Element;
  * @see org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
  * @see org.springframework.beans.factory.config.BeanPostProcessor
  * @see org.springframework.beans.BeanInfoFactory
- * @see org.springframework.web.context.ConfigurableWebApplicationContext
- * @see org.springframework.context.annotation.ConfigurationClassPostProcessor
  * @see org.mybatis.spring.annotation.MapperScan
  * @see org.mybatis.spring.mapper.MapperScannerConfigurer
  */
@@ -48,13 +48,16 @@ public class GmpApplicationContextInitializer implements ApplicationContextIniti
         @Override
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
             System.err.println("GmpRegistryPostProcessor -> postProcessBeanDefinitionRegistry");
-            String beanName = "gmpRegistryFactoryBean";
+            String beanName = "gmpFactoryBeanMapper";
             //BeanDefinitionBuilder bdb = BeanDefinitionBuilder.rootBeanDefinition(GmpRegistryFactoryBean.class);
             //registry.registerBeanDefinition(beanName, bdb.getBeanDefinition());
-            //GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
-            //beanDefinition.setBeanClass(GmpRegistryFactoryBean.class);
+            GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+            //beanDefinition.setScope("singleton");
+            beanDefinition.setBeanClass(FactoryBeanMapper.class);
+            beanDefinition.setLazyInit(true);
+            beanDefinition.setAutowireCandidate(true);
             //RootBeanDefinition beanDefinition = new RootBeanDefinition(GmpRegistryFactoryBean.class);
-            //registry.registerBeanDefinition(beanName, beanDefinition);
+            registry.registerBeanDefinition(beanName, beanDefinition);
         }
 
         @Override
@@ -64,10 +67,9 @@ public class GmpApplicationContextInitializer implements ApplicationContextIniti
     }
 
     /* FactoryBean */
-    protected class GmpRegistryFactoryBean implements FactoryBean<FactoryBeanMapper>, InitializingBean, BeanNameAware {
+    protected class GmpRegistryFactoryBean implements FactoryBean<FactoryBeanMapper>, InitializingBean {
 
         private FactoryBeanMapper mapper;
-        private String beanName;
 
         @Override
         public FactoryBeanMapper getObject() {
@@ -87,12 +89,6 @@ public class GmpApplicationContextInitializer implements ApplicationContextIniti
         @Override
         public void afterPropertiesSet() {
             if (mapper == null) mapper = new FactoryBeanMapper();
-            System.err.println("beanName: " + beanName);
-        }
-
-        @Override
-        public void setBeanName(String name) {
-            this.beanName = name;
         }
     }
 
@@ -109,7 +105,7 @@ public class GmpApplicationContextInitializer implements ApplicationContextIniti
         }
     }
 
-    protected class FactoryBeanMapper {
+    public class FactoryBeanMapper {
         /*
         private TokenAnnotationIntrospector tokenIntrospector = new TokenAnnotationIntrospector();
 
