@@ -4,6 +4,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -12,7 +13,12 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.core.type.filter.TypeFilter;
 import org.w3c.dom.Element;
+
+import java.util.Set;
 
 /**
  * @see org.springframework.web.WebApplicationInitializer
@@ -32,6 +38,8 @@ import org.w3c.dom.Element;
  * @see org.springframework.beans.BeanInfoFactory
  * @see org.mybatis.spring.annotation.MapperScan
  * @see org.mybatis.spring.mapper.MapperScannerConfigurer
+ * @see org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
+ * @see org.springframework.core.type.filter.AssignableTypeFilter
  */
 public class GmpApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
@@ -40,7 +48,12 @@ public class GmpApplicationContextInitializer implements ApplicationContextIniti
         System.err.println("tomcat start --> GmpApplicationContextInitializer");
         //applicationContext.getBeanFactory();
         applicationContext.addBeanFactoryPostProcessor(new GmpRegistryPostProcessor());
+        //applicationContext.refresh();
         //new GmpBeanDefinitionParser();
+        String[] bdns = applicationContext.getBeanDefinitionNames();
+        for (String bdn : bdns) {
+            System.out.println(bdn);
+        }
     }
 
     /* Processor */
@@ -48,16 +61,34 @@ public class GmpApplicationContextInitializer implements ApplicationContextIniti
         @Override
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
             System.err.println("GmpRegistryPostProcessor -> postProcessBeanDefinitionRegistry");
-            String beanName = "gmpFactoryBeanMapper";
+
+            String basePackages = "com.cc.anno.demo";
+            //ClassPathBeanDefinitionScanner beanScanner = new ClassPathBeanDefinitionScanner(registry, false);
+            GmpClassPathBeanDefinitionScanner beanScanner = new GmpClassPathBeanDefinitionScanner(registry, false);
+            //ClassPathScanningCandidateComponentProvider beanScanner = new ClassPathScanningCandidateComponentProvider(false, context.getEnvironment());
+            //TypeFilter includeFilter = (metadataReader, metadataReaderFactory) -> metadataReader.getClassMetadata().isConcrete();
+            TypeFilter includeFilter = new AnnotationTypeFilter(Token.class);
+            beanScanner.addIncludeFilter(includeFilter);
+            beanScanner.setBasePackages(basePackages);
+            beanScanner.registerBean();
+            /*
+            //Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackages);
+            Set<BeanDefinition> beanDefinitions = beanScanner.findCandidateComponents(basePackages);
+            for (BeanDefinition beanDefinition : beanDefinitions) {
+                String beanName = beanDefinition.getBeanClassName();
+                System.err.println(beanName);
+            }*/
+
+            //String beanName = "gmpFactoryBeanMapper";
             //BeanDefinitionBuilder bdb = BeanDefinitionBuilder.rootBeanDefinition(GmpRegistryFactoryBean.class);
             //registry.registerBeanDefinition(beanName, bdb.getBeanDefinition());
-            GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+            //GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
             //beanDefinition.setScope("singleton");
-            beanDefinition.setBeanClass(FactoryBeanMapper.class);
-            beanDefinition.setLazyInit(true);
-            beanDefinition.setAutowireCandidate(true);
+            //beanDefinition.setBeanClass(FactoryBeanMapper.class);
+            //beanDefinition.setLazyInit(true);
+            //beanDefinition.setAutowireCandidate(true);
             //RootBeanDefinition beanDefinition = new RootBeanDefinition(GmpRegistryFactoryBean.class);
-            registry.registerBeanDefinition(beanName, beanDefinition);
+            //registry.registerBeanDefinition(beanName, beanDefinition);
         }
 
         @Override
@@ -111,5 +142,31 @@ public class GmpApplicationContextInitializer implements ApplicationContextIniti
 
         class TokenAnnotationIntrospector {
         }*/
+    }
+
+    protected class GmpClassPathBeanDefinitionScanner extends ClassPathBeanDefinitionScanner {
+
+        private String[] basePackages;
+
+        public GmpClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
+            super(registry);
+        }
+
+        public GmpClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry, boolean useDefaultFilters) {
+            super(registry, useDefaultFilters);
+        }
+
+        public void registerBean() {
+
+            Set<BeanDefinitionHolder> beanDefinitionHolders = super.doScan(basePackages);
+            /*
+            for (BeanDefinitionHolder bdh : beanDefinitionHolders) {
+                this.getRegistry().registerBeanDefinition(bdh.getBeanName(), bdh.getBeanDefinition());
+            }*/
+        }
+
+        public void setBasePackages(String... basePackages) {
+            this.basePackages = basePackages;
+        }
     }
 }

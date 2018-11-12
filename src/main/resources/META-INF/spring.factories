@@ -1,5 +1,3 @@
 # initializer
 org.springframework.context.ApplicationContextInitializer=\
-  com.cc.anno.demo.config.GmpApplicationContextInitializer,\
-  com.cc.anno.demo.config.GmpApplicationContextInitializer2,\
-  com.cc.anno.demo.config.GmpApplicationContextInitializer3
+  com.cc.anno.demo.config.GmpApplicationContextInitializer

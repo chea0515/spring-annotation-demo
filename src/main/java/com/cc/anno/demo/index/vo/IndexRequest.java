@@ -12,6 +12,6 @@ import java.util.Date;
 public class IndexRequest {
     private String name;
     private String password;
-    @JsonFormat(pattern = "yyyy/MM/dd hh:mm:ss")
-    private Date date;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    private String addTime;
 }
