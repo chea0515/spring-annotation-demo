@@ -1,9 +1,9 @@
 package com.cc.anno.demo.index.controller;
 
+import com.cc.anno.demo.config.Token;
 import com.cc.anno.demo.index.service.IIndexService;
 import com.cc.anno.demo.index.vo.IndexRequest;
 import com.cc.anno.demo.index.vo.IndexResponse;
-import com.cc.anno.demo.index.vo.TokenRegisterMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,19 +16,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Token("type-> test")
 @RestController
 @RequestMapping("/anno/demo/index")
 public class IndexController {
 
     @Autowired
     private IIndexService service;
-    @Autowired
-    private TokenRegisterMapper mapper;
 
+    @Token("method-> test")
     @RequestMapping(value = "/{name}/{pass}", method = RequestMethod.GET)
     public IndexResponse index(@PathVariable String name, @PathVariable("pass") String password) {
         System.err.println("name: " + name + " , password: " + password);
-        System.err.println(mapper.getStr());
         return service.indexPage();
     }
 

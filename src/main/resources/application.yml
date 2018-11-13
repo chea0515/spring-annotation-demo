@@ -4,6 +4,6 @@ server:
   port: 9003
 
 # init class
-#context.initializer.classes: com.cc.anno.demo.config.GmpApplicationContextInitializer
+#context.initializer.classes: com.cc.anno.demo.config.AnnoDemoApplicationContextInitializer
 
 # mybatis

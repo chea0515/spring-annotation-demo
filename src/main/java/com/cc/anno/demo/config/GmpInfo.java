@@ -3,7 +3,6 @@ package com.cc.anno.demo.config;
 import java.util.Date;
 
 public class GmpInfo {
-
     private String name;
     private Date addTime;
 
